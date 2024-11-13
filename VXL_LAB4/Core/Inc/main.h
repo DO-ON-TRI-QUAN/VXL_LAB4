@@ -70,6 +70,8 @@ void Error_Handler(void);
 #define LED5_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
+extern UART_HandleTypeDef huart1;
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

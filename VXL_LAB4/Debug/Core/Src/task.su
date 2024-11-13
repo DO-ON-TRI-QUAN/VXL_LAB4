@@ -1,0 +1,5 @@
+task.c:12:6:LED1Blinky	104	static
+task.c:29:6:LED2Blinky	104	static
+task.c:54:6:LED3Blinky	8	static
+task.c:58:6:LED4Blinky	8	static
+task.c:62:6:LED5Blinky	8	static

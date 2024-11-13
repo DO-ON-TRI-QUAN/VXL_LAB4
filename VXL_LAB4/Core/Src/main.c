@@ -22,7 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "scheduler.h"
+#include "task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,8 +99,16 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  SCH_Init();
+  SCH_Add_Task(LED1Blinky, 0, 100);
+  SCH_Add_Task(LED2Blinky, 5, 100);
+  //SCH_Add_Task(LED3Blinky, 10, 100);
+  //SCH_Add_Task(LED4Blinky, 15, 100);
+  //SCH_Add_Task(LED5Blinky, 20, 100);
+
   while (1)
   {
+	  SCH_Dispatch_Task();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -250,7 +259,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-
+    SCH_Update();
 }
 /* USER CODE END 4 */
 
