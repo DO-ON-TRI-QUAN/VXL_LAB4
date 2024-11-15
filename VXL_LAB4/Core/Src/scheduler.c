@@ -6,6 +6,7 @@
  */
 
 #include "scheduler.h"
+#include "task.h"
 
 void SCH_Init(void) {
 	unsigned char i;
@@ -13,7 +14,6 @@ void SCH_Init(void) {
 		 SCH_Delete_Task(i);
 	}
 }
-
 
 void SCH_Update(void) {
 	unsigned char Index;
@@ -36,6 +36,8 @@ void SCH_Update(void) {
 	         }
 	     }
 	}
+
+    currentTime = HAL_GetTick() / 10 * 10;
 }
 
 void SCH_Dispatch_Task(void) {

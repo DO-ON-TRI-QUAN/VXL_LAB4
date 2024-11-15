@@ -10,6 +10,8 @@
 #ifndef INC_TASK_H_
 #define INC_TASK_H_
 
+int currentTime;
+
 void LED1Blinky();
 void LED2Blinky();
 void LED3Blinky();
