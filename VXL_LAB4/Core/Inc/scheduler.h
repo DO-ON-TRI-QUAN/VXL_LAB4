@@ -31,7 +31,7 @@ typedef struct {
 
 } sTask ;
 
-sTask SCH_tasks_G [SCH_MAX_TASKS ] ;
+sTask SCH_tasks_G [SCH_MAX_TASKS] ;
 
 void SCH_Init(void);
 void SCH_Update(void);

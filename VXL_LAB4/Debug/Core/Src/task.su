@@ -1,5 +1,6 @@
-task.c:12:6:LED1Blinky	72	static
-task.c:26:6:LED2Blinky	72	static
+task.c:12:5:get_time	4	static
+task.c:17:6:LED1Blinky	136	static
+task.c:35:6:LED2Blinky	72	static
 task.c:45:6:LED3Blinky	8	static
 task.c:49:6:LED4Blinky	8	static
 task.c:53:6:LED5Blinky	8	static

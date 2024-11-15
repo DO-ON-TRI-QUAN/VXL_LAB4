@@ -8,6 +8,7 @@
 #include "scheduler.h"
 #include "task.h"
 
+
 void SCH_Init(void) {
 	unsigned char i;
 	for (i = 0 ; i < SCH_MAX_TASKS; i++) {
@@ -36,8 +37,6 @@ void SCH_Update(void) {
 	         }
 	     }
 	}
-
-    currentTime = HAL_GetTick() / 10 * 10;
 }
 
 void SCH_Dispatch_Task(void) {
@@ -105,3 +104,6 @@ unsigned char SCH_Delete_Task(const int TASK_INDEX){
     SCH_tasks_G[TASK_INDEX].RunMe = 0;
     return Return_code; // return status
 }
+
+
+
