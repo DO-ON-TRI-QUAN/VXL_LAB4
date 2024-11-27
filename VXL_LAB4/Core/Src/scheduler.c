@@ -203,10 +203,6 @@ unsigned char SCH_Delete_Task(TaskNode* taskToDelete) {
 }
 */
 
-
-unsigned long SCH_GlobalTick = 0;      // Global tick counter
-Task* SCH_TaskList = NULL;             // Pointer to the head of the task list
-
 // Initialize the scheduler
 void SCH_Init(void) {
     SCH_GlobalTick = 0;  // Reset global tick counter
@@ -244,34 +240,39 @@ void SCH_Update(void) {
 // Dispatch (run) the next task from the task list
 void SCH_Dispatch_Task(void) {
     Task* currentTask = SCH_TaskList;
-    Task* prevTask = NULL;
+    unsigned char taskIndex = 0;
 
     while (currentTask != NULL) {
-        // If the task is due to run, execute it
         if (currentTask->nextRunTime <= SCH_GlobalTick) {
-            currentTask->pTask();  // Run the task
+            // Run the task
+            currentTask->pTask();
 
-            // Update the nextRunTime if it's periodic
+            // For periodic tasks, update nextRunTime
             if (currentTask->period > 0) {
                 currentTask->nextRunTime = SCH_GlobalTick + currentTask->period;
-                prevTask = currentTask;
                 currentTask = currentTask->next;  // Move to the next task
+                taskIndex++;
             } else {
-                // Remove one-shot task from the list
-                if (prevTask != NULL) {
-                    prevTask->next = currentTask->next;
+                // For one-shot tasks, use SCH_Delete_Task to remove them
+                unsigned char result = SCH_Delete_Task(taskIndex);
+
+                // If deletion was successful, move to the next task
+                if (result == 1) {
+                    currentTask = currentTask->next;
                 } else {
-                    SCH_TaskList = currentTask->next;  // Move head to the next task
+                    // Handle the failure of deletion if necessary (this should rarely happen)
+                    currentTask = currentTask->next;
                 }
-                free(currentTask);  // Free the memory for the one-shot task
-                currentTask = prevTask ? prevTask->next : SCH_TaskList;  // Move to the next task
             }
         } else {
-            prevTask = currentTask;
-            currentTask = currentTask->next;  // Move to the next task
+            currentTask = currentTask->next;
+            taskIndex++;
         }
     }
 }
+
+
+
 
 
 

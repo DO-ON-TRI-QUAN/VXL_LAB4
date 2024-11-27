@@ -65,6 +65,9 @@ typedef struct Task {
     struct Task* next;         // Pointer to the next task in the list
 } Task;
 
+unsigned long SCH_GlobalTick;      // Global tick counter
+Task* SCH_TaskList;                // Pointer to the head of the task list
+
 // Function prototypes
 void SCH_Init(void);
 void SCH_Update(void);
