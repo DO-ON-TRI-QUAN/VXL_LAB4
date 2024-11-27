@@ -243,58 +243,70 @@ void SCH_Update(void) {
 
 // Dispatch (run) the next task from the task list
 void SCH_Dispatch_Task(void) {
-    // Check if the task list is empty
-    if (SCH_TaskList == NULL) {
-        return;  // No tasks to dispatch
-    }
-
-    // The task at the front of the list has the earliest nextRunTime
     Task* currentTask = SCH_TaskList;
+    Task* prevTask = NULL;
 
-    // Check if the task is ready to run (its next run time has arrived)
-    if (currentTask->nextRunTime <= SCH_GlobalTick) {
-        // Run the task
-        currentTask->pTask();
+    while (currentTask != NULL) {
+        // If the task is due to run, execute it
+        if (currentTask->nextRunTime <= SCH_GlobalTick) {
+            currentTask->pTask();  // Run the task
 
-        // Update the nextRunTime for periodic tasks
-        if (currentTask->period > 0) {
-            currentTask->nextRunTime = SCH_GlobalTick + currentTask->period;
+            // Update the nextRunTime if it's periodic
+            if (currentTask->period > 0) {
+                currentTask->nextRunTime = SCH_GlobalTick + currentTask->period;
+                prevTask = currentTask;
+                currentTask = currentTask->next;  // Move to the next task
+            } else {
+                // Remove one-shot task from the list
+                if (prevTask != NULL) {
+                    prevTask->next = currentTask->next;
+                } else {
+                    SCH_TaskList = currentTask->next;  // Move head to the next task
+                }
+                free(currentTask);  // Free the memory for the one-shot task
+                currentTask = prevTask ? prevTask->next : SCH_TaskList;  // Move to the next task
+            }
         } else {
-            // For one-shot tasks, remove it from the list after execution
-            SCH_TaskList = currentTask->next;
-            free(currentTask);  // Free the memory for the one-shot task
+            prevTask = currentTask;
+            currentTask = currentTask->next;  // Move to the next task
         }
     }
 }
 
 
+
 // Add a task to the scheduler
 unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int PERIOD) {
-    Task* newTask = (Task*)malloc(sizeof(Task));  // Allocate memory for the new task
-    if (!newTask) return SCH_MAX_TASKS;  // Return error if memory allocation fails
+    Task* newTask = (Task*)malloc(sizeof(Task));
+    if (newTask == NULL) {
+        return SCH_MAX_TASKS;  // Memory allocation failed
+    }
 
+    // Initialize the task structure
     newTask->pTask = pFunction;
-    newTask->nextRunTime = SCH_GlobalTick + DELAY;  // Set next run time based on current global tick
+    newTask->nextRunTime = SCH_GlobalTick + DELAY;
     newTask->period = PERIOD;
     newTask->next = NULL;
 
-    // Add the task to the task list in sorted order (by nextRunTime)
+    // Insert the new task into the task list while maintaining order
     if (SCH_TaskList == NULL || SCH_TaskList->nextRunTime > newTask->nextRunTime) {
-        // Insert as the first task if it's the earliest to run
+        // Insert at the head if the list is empty or new task is due earlier
         newTask->next = SCH_TaskList;
         SCH_TaskList = newTask;
     } else {
-        // Find the right position and insert it
+        // Find the correct position to insert (in sorted order)
         Task* current = SCH_TaskList;
-        while (current->next != NULL && current->next->nextRunTime <= newTask->nextRunTime) {
+        while (current->next != NULL && current->nextRunTime <= newTask->nextRunTime) {
             current = current->next;
         }
         newTask->next = current->next;
         current->next = newTask;
     }
 
-    return 0;  // Task added successfully
+    return 1;  // Task successfully added
 }
+
+
 
 // Delete a task from the scheduler
 unsigned char SCH_Delete_Task(const int TASK_INDEX) {
