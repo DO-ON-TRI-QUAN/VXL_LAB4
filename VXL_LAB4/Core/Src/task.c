@@ -9,11 +9,6 @@
 #include <stdio.h>
 #include <string.h>
 
-int get_time(void) {
-	counter += 10;
-	return counter;
-}
-
 void LED1Blinky(void) {
     char messageBuffer[64];
     char buffer[64];
@@ -21,8 +16,6 @@ void LED1Blinky(void) {
     currentTime = HAL_GetTick() / 10 * 10;
 
     sprintf(messageBuffer, "Task 1 has started at: %d \r\n", currentTime);
-
-    sprintf(buffer, "Counter value: %d \r\n", counter);
 
     HAL_UART_Transmit(&huart1, (uint8_t*)messageBuffer, strlen(messageBuffer), 100);
 

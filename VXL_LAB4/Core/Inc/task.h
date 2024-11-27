@@ -11,9 +11,6 @@
 #define INC_TASK_H_
 
 int currentTime;
-int counter;
-
-int get_time(void);
 
 void LED1Blinky();
 void LED2Blinky();
