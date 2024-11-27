@@ -99,12 +99,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  //SCH_Init();
-  SCH_Add_Task(LED1Blinky, 0, 1000);
-  //SCH_Add_Task(LED2Blinky, 5, 100);
-  //SCH_Add_Task(LED3Blinky, 10, 100);
-  //SCH_Add_Task(LED4Blinky, 15, 100);
-  //SCH_Add_Task(LED5Blinky, 20, 100);
+  SCH_Init();
+  SCH_Add_Task(LED1Blinky, 0, 100);
+  SCH_Add_Task(LED2Blinky, 5, 100);
+  SCH_Add_Task(LED3Blinky, 10, 100);
+  SCH_Add_Task(LED4Blinky, 15, 100);
+  SCH_Add_Task(LED5Blinky, 20, 100);
 
   while (1)
   {

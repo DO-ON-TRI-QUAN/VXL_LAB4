@@ -243,23 +243,30 @@ void SCH_Update(void) {
 
 // Dispatch (run) the next task from the task list
 void SCH_Dispatch_Task(void) {
-    if (SCH_TaskList != NULL) {
-        // Get the task that is due to run
-        Task* taskToRun = SCH_TaskList;
+    // Check if the task list is empty
+    if (SCH_TaskList == NULL) {
+        return;  // No tasks to dispatch
+    }
 
+    // The task at the front of the list has the earliest nextRunTime
+    Task* currentTask = SCH_TaskList;
+
+    // Check if the task is ready to run (its next run time has arrived)
+    if (currentTask->nextRunTime <= SCH_GlobalTick) {
         // Run the task
-        taskToRun->pTask();
+        currentTask->pTask();
 
-        // Update the task's next execution time if it's periodic
-        if (taskToRun->period > 0) {
-            taskToRun->nextRunTime = SCH_GlobalTick + taskToRun->period;
+        // Update the nextRunTime for periodic tasks
+        if (currentTask->period > 0) {
+            currentTask->nextRunTime = SCH_GlobalTick + currentTask->period;
         } else {
-            // Remove one-shot task from the list
-            SCH_TaskList = taskToRun->next;
-            free(taskToRun);  // Free the memory for the one-shot task
+            // For one-shot tasks, remove it from the list after execution
+            SCH_TaskList = currentTask->next;
+            free(currentTask);  // Free the memory for the one-shot task
         }
     }
 }
+
 
 // Add a task to the scheduler
 unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int PERIOD) {
