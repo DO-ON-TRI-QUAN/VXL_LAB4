@@ -53,10 +53,6 @@ void SCH_Dispatch_Task(void) {
              }
     	 }
     }
-    // Report system status
-    //SCH_Report_Status();
-    // The scheduler enters idle mode at this point
-    //SCH_Go_To_Sleep();
 }
 
 unsigned char SCH_Add_Task(void (* pFunction)(), unsigned int DELAY, unsigned int PERIOD) {
@@ -66,12 +62,10 @@ unsigned char SCH_Add_Task(void (* pFunction)(), unsigned int DELAY, unsigned in
     while ((SCH_tasks_G[Index].pTask != 0) && (Index < SCH_MAX_TASKS)) {
        Index++;
     }
+
     // Have we reached the end of the list?
     if (Index == SCH_MAX_TASKS) {
-        // Task list is full
-        // Set the global error variable
-        //Error_code_G = ERROR_SCH_TOO_MANY_TASKS;
-        // Also return an error code
+
         return SCH_MAX_TASKS;
     }
 
@@ -80,6 +74,7 @@ unsigned char SCH_Add_Task(void (* pFunction)(), unsigned int DELAY, unsigned in
     SCH_tasks_G[Index].Delay = DELAY;
     SCH_tasks_G[Index].Period = PERIOD;
     SCH_tasks_G[Index].RunMe = 0;
+
     // return position of task (to allow later deletion)
     return Index;
 }
@@ -87,12 +82,6 @@ unsigned char SCH_Add_Task(void (* pFunction)(), unsigned int DELAY, unsigned in
 unsigned char SCH_Delete_Task(const int TASK_INDEX){
     unsigned char Return_code;
     if (SCH_tasks_G[TASK_INDEX].pTask == 0) {
-        // No task at this location...
-        //
-        // Set the global error variable
-        //Error_code_G = ERROR_SCH_CANNOT_DELETE_TASK
-
-        // ...also return an error code
         Return_code = 0;
     } else {
         Return_code = 1;
