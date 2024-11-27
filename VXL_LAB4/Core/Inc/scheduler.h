@@ -23,10 +23,10 @@ typedef struct {
 	// Interval (ticks) between subsequent runs .
 	uint32_t Period;
 
-	// Incremented (by scheduler) when task i s due to execute
+	// Incremented (by scheduler) when task is due to execute
 	uint8_t RunMe;
 
-	//This is a hint to solve the question below .
+	//This is a hint to solve the problem
 	uint32_t TaskID;
 
 } sTask ;
