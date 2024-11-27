@@ -10,11 +10,11 @@
 #ifndef INC_SCHEDULER_H_
 #define INC_SCHEDULER_H_
 
-/*
+
 #define SCH_MAX_TASKS 40
 #define NO_TASK_ID 0
 
-
+/*
 typedef struct {
 	// Pointer to the task (must be a ’void (void)’ function )
 	void (*pTask) (void) ;
@@ -37,6 +37,8 @@ sTask SCH_tasks_G[SCH_MAX_TASKS] ;
 
 */
 
+/*
+
 // Define the task structure (linked list node)
 typedef struct TaskNode {
     void (*pTask)(void);          // Pointer to the task function
@@ -53,6 +55,22 @@ void SCH_Update(void);
 void SCH_Dispatch_Task(void);
 unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int PERIOD);
 unsigned char SCH_Delete_Task(TaskNode* taskToDelete);
+*/
+
+// Task structure
+typedef struct Task {
+    void (*pTask)(void);      // Pointer to the task function (void function)
+    unsigned long nextRunTime; // Time when the task will run
+    unsigned long period;      // Period in ticks for periodic tasks (0 for one-shot)
+    struct Task* next;         // Pointer to the next task in the list
+} Task;
+
+// Function prototypes
+void SCH_Init(void);
+void SCH_Update(void);
+void SCH_Dispatch_Task(void);
+unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int PERIOD);
+unsigned char SCH_Delete_Task(const int TASK_INDEX);
 
 
 #endif /* INC_SCHEDULER_H_ */

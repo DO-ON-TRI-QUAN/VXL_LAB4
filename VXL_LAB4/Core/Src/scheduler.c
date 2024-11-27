@@ -97,6 +97,8 @@ unsigned char SCH_Delete_Task(const int TASK_INDEX){
 */
 
 
+/*
+
 // Head of the linked list that holds tasks
 TaskNode* taskListHead = NULL;  // Initially, no tasks
 
@@ -198,4 +200,122 @@ unsigned char SCH_Delete_Task(TaskNode* taskToDelete) {
     }
     free(taskToDelete);  // Free memory
     return 1;  // Task deleted successfully
+}
+*/
+
+
+unsigned long SCH_GlobalTick = 0;      // Global tick counter
+Task* SCH_TaskList = NULL;             // Pointer to the head of the task list
+
+// Initialize the scheduler
+void SCH_Init(void) {
+    SCH_GlobalTick = 0;  // Reset global tick counter
+    SCH_TaskList = NULL; // Initialize the task list as empty
+}
+
+// Update the scheduler (called in the ISR)
+void SCH_Update(void) {
+    SCH_GlobalTick++;  // Increment the global tick (called in ISR)
+
+    // Check if there are any tasks in the task list
+    if (SCH_TaskList == NULL) {
+        return;  // No tasks to run
+    }
+
+    // The task at the front of the list has the earliest nextRunTime
+    Task* currentTask = SCH_TaskList;
+
+    // Check if the task is ready to run (its next run time has arrived)
+    if (currentTask->nextRunTime <= SCH_GlobalTick) {
+        // Run the task
+        currentTask->pTask();
+
+        // Update the nextRunTime for periodic tasks
+        if (currentTask->period > 0) {
+            currentTask->nextRunTime = SCH_GlobalTick + currentTask->period;
+        } else {
+            // For one-shot tasks, remove it from the list after execution
+            SCH_TaskList = currentTask->next;
+            free(currentTask);  // Free the memory for the one-shot task
+        }
+    }
+}
+
+// Dispatch (run) the next task from the task list
+void SCH_Dispatch_Task(void) {
+    if (SCH_TaskList != NULL) {
+        // Get the task that is due to run
+        Task* taskToRun = SCH_TaskList;
+
+        // Run the task
+        taskToRun->pTask();
+
+        // Update the task's next execution time if it's periodic
+        if (taskToRun->period > 0) {
+            taskToRun->nextRunTime = SCH_GlobalTick + taskToRun->period;
+        } else {
+            // Remove one-shot task from the list
+            SCH_TaskList = taskToRun->next;
+            free(taskToRun);  // Free the memory for the one-shot task
+        }
+    }
+}
+
+// Add a task to the scheduler
+unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int PERIOD) {
+    Task* newTask = (Task*)malloc(sizeof(Task));  // Allocate memory for the new task
+    if (!newTask) return SCH_MAX_TASKS;  // Return error if memory allocation fails
+
+    newTask->pTask = pFunction;
+    newTask->nextRunTime = SCH_GlobalTick + DELAY;  // Set next run time based on current global tick
+    newTask->period = PERIOD;
+    newTask->next = NULL;
+
+    // Add the task to the task list in sorted order (by nextRunTime)
+    if (SCH_TaskList == NULL || SCH_TaskList->nextRunTime > newTask->nextRunTime) {
+        // Insert as the first task if it's the earliest to run
+        newTask->next = SCH_TaskList;
+        SCH_TaskList = newTask;
+    } else {
+        // Find the right position and insert it
+        Task* current = SCH_TaskList;
+        while (current->next != NULL && current->next->nextRunTime <= newTask->nextRunTime) {
+            current = current->next;
+        }
+        newTask->next = current->next;
+        current->next = newTask;
+    }
+
+    return 0;  // Task added successfully
+}
+
+// Delete a task from the scheduler
+unsigned char SCH_Delete_Task(const int TASK_INDEX) {
+    Task* current = SCH_TaskList;
+    Task* previous = NULL;
+    unsigned char i = 0;
+
+    // Traverse the task list to find the task to delete
+    while (current != NULL && i < TASK_INDEX) {
+        previous = current;
+        current = current->next;
+        i++;
+    }
+
+    // If task was not found, return failure
+    if (current == NULL) {
+        return 0;  // Task not found
+    }
+
+    // Task found, remove it from the list
+    if (previous == NULL) {
+        // The task is at the head of the list
+        SCH_TaskList = current->next;
+    } else {
+        // Task is in the middle or end of the list
+        previous->next = current->next;
+    }
+
+    free(current);  // Free the memory occupied by the task
+    return 1;  // Task successfully deleted
 }
